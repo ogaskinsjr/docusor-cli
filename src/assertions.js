@@ -68,24 +68,112 @@ export async function runAssertion(spec, { projectName, cwd }) {
   }
 }
 
+// export async function waitFor(spec, { projectName, cwd }) {
+//   // waitFor: httpOk <url> <timeoutSec>
+//   const parts = splitArgs(spec);
+//   const [type, ...rest] = parts;
+
+//   if (type === "httpOk") {
+//     const url = rest[0]; const timeoutSec = Number(rest[1] || 60);
+//     const start = Date.now();
+//     while (Date.now() - start < timeoutSec * 1000) {
+//       if (await httpStatus(url, "GET", undefined, 200)) return pass(`waitFor httpOk ${url}`);
+//       await sleep(1000);
+//     }
+//     return fail(`Timeout waiting for ${url} to return 200`);
+//   }
+
+//   // Add more waitFor kinds later (portOpen, logContains)
+//   return fail(`Unknown waitFor: ${type}`);
+// }
+
 export async function waitFor(spec, { projectName, cwd }) {
-  // waitFor: httpOk <url> <timeoutSec>
+  // Supported:
+  //   waitFor: httpOk <url> [timeoutSec]
+  //   waitFor: portOpen [host] <port> [timeoutSec]
+  //   waitFor: logContains container:<svc> "text" [timeoutSec]
   const parts = splitArgs(spec);
   const [type, ...rest] = parts;
 
+  // helpers
+  const parseTimeout = (n, def = 60) => {
+    const num = Number(n);
+    return Number.isFinite(num) && num > 0 ? num : def;
+  };
+
   if (type === "httpOk") {
-    const url = rest[0]; const timeoutSec = Number(rest[1] || 60);
+    const url = rest[0];
+    const timeoutSec = parseTimeout(rest[1], 60);
     const start = Date.now();
     while (Date.now() - start < timeoutSec * 1000) {
-      if (await httpStatus(url, "GET", undefined, 200)) return pass(`waitFor httpOk ${url}`);
+      if (await httpStatus(url, "GET", undefined, 200)) {
+        return pass(`waitFor httpOk ${url}`);
+      }
       await sleep(1000);
     }
     return fail(`Timeout waiting for ${url} to return 200`);
   }
 
-  // Add more waitFor kinds later (portOpen, logContains)
+  if (type === "portOpen") {
+    // Forms:
+    //   portOpen <port> [timeout]
+    //   portOpen <host> <port> [timeout]
+    let host = "127.0.0.1";
+    let port;
+    let timeoutSec = 60;
+
+    if (rest.length >= 2 && /^\d+$/.test(rest[1])) {
+      // host, port, [timeout]
+      host = rest[0];
+      port = Number(rest[1]);
+      timeoutSec = parseTimeout(rest[2], 60);
+    } else {
+      // port, [timeout]
+      port = Number(rest[0]);
+      timeoutSec = parseTimeout(rest[1], 60);
+    }
+
+    const start = Date.now();
+    while (Date.now() - start < timeoutSec * 1000) {
+      if (await isPortOpen(host, port, 1500)) {
+        return pass(`waitFor portOpen ${host}:${port}`);
+      }
+      await sleep(1000);
+    }
+    return fail(`Timeout waiting for port ${host}:${port} to open`);
+  }
+
+  if (type === "logContains") {
+    // logContains container:<svc> "text" [timeoutSec]
+    const [target, ...txtAndMaybeTimeout] = rest;
+    if (!target?.startsWith("container:")) {
+      return fail(`waitFor logContains requires container:<svc>`);
+    }
+    let timeoutSec = 60;
+    // If the last token is a number, treat it as timeout
+    const last = txtAndMaybeTimeout[txtAndMaybeTimeout.length - 1];
+    if (/^\d+$/.test(last)) {
+      timeoutSec = parseTimeout(last, 60);
+      txtAndMaybeTimeout.pop();
+    }
+    const svc = target.split(":")[1];
+    const text = stripQuotes(txtAndMaybeTimeout.join(" "));
+    const id = await resolveServiceContainerId(svc, projectName, cwd);
+
+    const start = Date.now();
+    while (Date.now() - start < timeoutSec * 1000) {
+      const { stdout } = await sh(`docker logs --tail=1000 ${id}`);
+      if (stdout.includes(text)) {
+        return pass(`waitFor logContains ${svc} "${text}"`);
+      }
+      await sleep(1000);
+    }
+    return fail(`Timeout waiting for "${text}" to appear in logs of ${svc}`);
+  }
+
   return fail(`Unknown waitFor: ${type}`);
 }
+
 
 // helpers
 function pass(msg) { return { ok: true, message: msg }; }
