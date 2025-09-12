@@ -1,4 +1,4 @@
-// src/index.js
+#!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
 import { parseDocsToSteps } from "./parser.js";
