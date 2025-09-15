@@ -1,8 +1,8 @@
 {
-  "name": "veridocs-mvp",
+  "name": "docusor-mvp",
   "version": "0.1.0",
   "type": "module",
-  "bin": { "veridocs": "./src/index.js" },
+  "bin": { "docusor": "./src/index.js" },
   "scripts": {
     "start": "node ./src/index.js README.md",
     "test-run": "node ./src/index.js README.md"

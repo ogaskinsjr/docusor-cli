@@ -1,11 +1,11 @@
 // src/reporters.js
 import fs from "node:fs";
 
-export function writeJson(result, out = "veridocs-report.json") {
+export function writeJson(result, out = "docusor-report.json") {
   fs.writeFileSync(out, JSON.stringify(result, null, 2));
 }
 
-export function writeMarkdown(result, out = "VERIDOCS_REPORT.md") {
+export function writeMarkdown(result, out = "DOCUSOR_REPORT.md") {
   const lines = [];
   lines.push(`# Docs Verified: ${result.overallOk ? "✅" : "❌"}`);
   lines.push("");

@@ -1,10 +1,10 @@
-Veridocs
+DocuSOR
 
 Test your documentation to make sure it works as expected
 
 ```bash
 # Start a tiny Node HTTP server on port 8080 (background)
-node -e "require('http').createServer((req,res)=>{res.statusCode=200;res.end('ok');}).listen(8080)" >/tmp/veridocs-node.log 2>&1 & echo $! >/tmp/veridocs-node.pid
+node -e "require('http').createServer((req,res)=>{res.statusCode=200;res.end('ok');}).listen(8080)" >/tmp/docusor-node.log 2>&1 & echo $! >/tmp/docusor-node.pid
 
 # Wait for it to be reachable, then assert responses and basics
 # waitFor: portOpen 127.0.0.1 8080 20
@@ -15,7 +15,7 @@ node -e "require('http').createServer((req,res)=>{res.statusCode=200;res.end('ok
 # assert: fileExists WALKTHROUGH.md
 
 # Cleanup the server
-kill $(cat /tmp/veridocs-node.pid) || true
-rm -f /tmp/veridocs-node.pid
+kill $(cat /tmp/docusor-node.pid) || true
+rm -f /tmp/docusor-node.pid
 ```
 

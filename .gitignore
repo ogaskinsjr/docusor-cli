@@ -8,3 +8,5 @@ pnpm-debug.log*
 *.swp
 veridocs-report.json
 VERIDOCS_REPORT.md
+docusor-report.json
+DOCUSOR_REPORT.md
