@@ -68,25 +68,6 @@ export async function runAssertion(spec, { projectName, cwd }) {
   }
 }
 
-// export async function waitFor(spec, { projectName, cwd }) {
-//   // waitFor: httpOk <url> <timeoutSec>
-//   const parts = splitArgs(spec);
-//   const [type, ...rest] = parts;
-
-//   if (type === "httpOk") {
-//     const url = rest[0]; const timeoutSec = Number(rest[1] || 60);
-//     const start = Date.now();
-//     while (Date.now() - start < timeoutSec * 1000) {
-//       if (await httpStatus(url, "GET", undefined, 200)) return pass(`waitFor httpOk ${url}`);
-//       await sleep(1000);
-//     }
-//     return fail(`Timeout waiting for ${url} to return 200`);
-//   }
-
-//   // Add more waitFor kinds later (portOpen, logContains)
-//   return fail(`Unknown waitFor: ${type}`);
-// }
-
 export async function waitFor(spec, { projectName, cwd }) {
   // Supported:
   //   waitFor: httpOk <url> [timeoutSec]
