@@ -33,16 +33,19 @@ function printFailureSummary(result) {
 }
 
 async function main() {
-  const doc = process.argv[2] || "README.md";
-  const cwd = process.cwd();
-  const projectName = "vd_" + Math.random().toString(36).slice(2, 8);
+const docArg = process.argv[2] || "README.md";
+const cwd = process.cwd();
 
-  if (!fs.existsSync(path.join(cwd, doc))) {
-    console.error(`Doc not found: ${doc}`);
-    process.exit(2);
+const docPath = path.isAbsolute(docArg) ? docArg : path.join(cwd, docArg);
+
+
+if (!fs.existsSync(docPath)) {
+  console.error(`Doc not found: ${docPath}`);
+  process.exit(2);
   }
+const projectName = "vd_" + Math.random().toString(36).slice(2, 8);
+const steps = parseDocsToSteps(docPath);
 
-  const steps = parseDocsToSteps(doc);
 
   if (composeExists(cwd)) {
     console.log("🔧 Bringing up docker-compose…");
