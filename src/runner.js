@@ -7,18 +7,23 @@ export async function runSteps(steps, { projectName, cwd }) {
   const results = [];
   let overallOk = true;
 
-  for (const [i, step] of steps.entries()) {
+  for (var [i, step] of steps.entries()) {
+    var j = i;
+    console.log("Step " + (++j))
     const startedAt = new Date().toISOString();
     let ok = true, stdout = "", stderr = "", error;
 
     try {
       if (step.kind === StepKind.SHELL) {
+        console.log("Received shell command, executing")
         const r = await sh(step.cmd, { cwd, timeoutMs: (step.timeoutSec || 300) * 1000 });
         ok = r.code === 0; stdout = r.stdout; stderr = r.stderr;
       } else if (step.kind === StepKind.ASSERT) {
+        console.log("Received assert command, executing")
         const r = await runAssertion(step.spec, { projectName, cwd });
         ok = r.ok; stdout = r.message;
       } else if (step.kind === StepKind.WAIT_FOR) {
+        console.log("Received wait for command, executing")
         const r = await waitFor(step.spec, { projectName, cwd });
         ok = r.ok; stdout = r.message;
       }

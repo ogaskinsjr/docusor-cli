@@ -1,6 +1,6 @@
 # DocuSOR — Executable Documentation Verifier (All-in-One README)
 
-[![Docs Verified](https://img.shields.io/badge/docs-verified-brightgreen)](./DOCUSOR_REPORT.md) [![npm version](https://img.shields.io/npm/v/docusor-mvp)](https://www.npmjs.com/package/docusor-mvp) ![Docker Image](https://img.shields.io/badge/docker-ghcr.io%2Fogaskinsjr%2Fdocusor--mvp-blue) ![Node](https://img.shields.io/badge/node-%3E%3D18.x-339933?logo=node.js&logoColor=white) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
+[![Docs Verified](https://img.shields.io/badge/docs-verified-brightgreen)](./DOCUSOR_REPORT.md) [![License: Apache 2.o](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
 
 DocuSOR turns your README into a test suite. It executes commands from fenced `bash` blocks in your docs, optionally brings up Docker Compose, evaluates assertions (`httpOk`, `httpStatus`, `portOpen`, `fileExists`, `logContains`, `commandSucceeds`) and waits (`waitFor`), and emits Markdown/JSON reports. Use it locally or in CI to keep onboarding instructions honest.
 
@@ -106,33 +106,6 @@ Sample Markdown report:
 | 6  | assert  | `fileExists ./config/generated.yml`           | ✅ |
 | 7  | assert  | `commandSucceeds "echo ok"`                   | ✅ |
 
-GITHUB ACTIONS (CI) — DROP-IN WORKFLOW
-name: DocuSOR
-on: [push, pull_request]
-
-jobs:
-  verify-docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run DocuSOR
-        run: |
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v "$PWD":/workspace \
-            ghcr.io/ogaskinsjr/docusor-mvp:0.1.0 \
-            /workspace/README.md
-      - name: Upload reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: docusor-reports
-          path: |
-            DOCUSOR_REPORT.md
-            docusor-report.json
-
-This offline run produces artifacts and returns non-zero on failure. Later, integrate DocuSOR Cloud for a required status check and trusted badge.
-
 CONFIGURATION & DEFAULTS
 
 Input: default README.md (override by passing a path to the CLI/Docker)
@@ -163,8 +136,8 @@ npm install
 npm run test-run   # runs the CLI against README.md
 
 Build & run the Docker image (maintainers):
-docker build -t ghcr.io/ogaskinsjr/docusor-mvp:0.1.0 .
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/workspace ghcr.io/ogaskinsjr/docusor-mvp:0.1.0 /workspace/README.md
+docker build -t ghcr.io/ogaskinsjr/docusor-cli:0.1.0 .
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/workspace ghcr.io/ogaskinsjr/docusor-cli:0.1.0 /workspace/README.md
 
 FAQ
 
