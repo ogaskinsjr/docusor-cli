@@ -1,4 +1,5 @@
 DocuSOR
+👉 For a full step-by-step example, see the [WALKTHROUGH.md](./WALKTHROUGH.md).
 
 Test your documentation to make sure it works as expected
 

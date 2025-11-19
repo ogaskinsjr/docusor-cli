@@ -6,7 +6,6 @@ DocuSOR turns your README into a test suite. It executes commands from fenced `b
 
 > **Open-core model:**  
 > This repo is the **open-source DocuSOR CLI** (Apache-2.0).  
-> **DocuSOR Cloud** (dashboards, org features, SSO, private runners, badges) is a separate **closed-source SaaS** product.
 
 ---
 
@@ -203,7 +202,7 @@ Wait directives **poll until success or timeout**.
 #### `waitFor: httpOk <url> [timeoutSec]`
 
 ```bash
-# waitFor: httpOk http://localhost:8080/health 45
+# waitFor: httpOk http://localhost:8080/health 6s
 ```
 
 #### `waitFor: portOpen [host] <port> [timeoutSec]`
@@ -254,40 +253,6 @@ DocuSOR emits two outputs by default:
 | 6  | assert  | `fileExists ./config/generated.yml`              | ✅     |
 | 7  | assert  | `commandSucceeds "echo ok"`                      | ✅     |
 ```
-
----
-
-## GitHub Actions (CI) — Drop-in Workflow
-
-Basic example to run DocuSOR in CI using Docker:
-
-```yaml
-name: Docs Verification
-
-on:
-  pull_request:
-    paths:
-      - 'README.md'
-      - 'docs/**'
-      - '.github/workflows/docs-verification.yml'
-
-jobs:
-  verify-docs:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run DocuSOR
-        run: |
-          docker run --rm             -v /var/run/docker.sock:/var/run/docker.sock             -v "$PWD":/workspace             ghcr.io/ogaskinsjr/docusor-mvp:0.1.0             /workspace/README.md
-```
-
-If DocuSOR returns a non-zero exit code, the job will fail and the pull request will be blocked until the docs (or code) are fixed and verification passes.
-
----
-
 ## Configuration & Defaults
 
 - **Input file**  
@@ -359,8 +324,8 @@ docker run --rm   -v /var/run/docker.sock:/var/run/docker.sock   -v "$PWD":/work
 **Why not just rely on tests?**  
 Tests validate **code**; DocuSOR validates **docs + environment** end-to-end (prereqs, commands, runtime behavior). They are complementary. Tests can pass while onboarding docs are broken.
 
-**Can I run only locally and not in CI?**  
-Yes. Option A (Docker) or Option B (CLI) both work locally. CI just makes it enforced for every PR.
+**How do I integrate with CI/CD?**
+The docusor-report allows easy CI/CD integration, but a Cloud service to handle this for your enterprises is coming soon! :D
 
 **Does this support non-HTTP apps (Kafka, DBs, microservices)?**  
 Yes, via `portOpen`, `commandSucceeds`, `logContains`, `fileExists`. More domain-specific assertions (`dbQuery`, `kafkaRoundTrip`, etc.) are planned.
@@ -459,7 +424,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-The **name “DocuSOR” and associated logos/badges are not covered by this license**. See [Trademark & Logo Notice](#trademark--logo-notice).
+The **name “DocuSOR” and associated logos/badges are not covered by this license**. See [Trademark & Logo Notice](./NOTICE).
 
 ---
 
