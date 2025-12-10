@@ -9,7 +9,7 @@ export function parseDocsToSteps(docPath = "README.md") {
   const steps = [];
 
   for (const t of tokens) {
-    if (t.type === "code" && (t.lang || "").toLowerCase() === "bash") {
+    if (t.type === "code" && (t.lang || "").toLowerCase() === "initiate docusor") {
       const lines = t.text.split("\n");
 
       for (const raw of lines) {
