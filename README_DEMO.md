@@ -14,11 +14,12 @@ To show how it works, you can run DocuSOR against itself
 Super simple implementation, for more indepth walkthrough, reference this test repo we have set up :D
 
 ```bash
-node -e "require('http').createServer((req,res)=>{res.statusCode=200;res.end('ok');}).listen(8080)" >/tmp/docusor-node.log 2>&1 & echo $! >/tmp/docusor-node.pid
+#This was made to be run in a Linux env, use WSL to execute this if you are using Windows
+node -e "require('http').createServer((req,res)=>{res.statusCode=200;res.end('ok');}).listen(8100)" >/tmp/docusor-node.log 2>&1 & echo $! >/tmp/docusor-node.pid
 
-# waitFor: portOpen 127.0.0.1 8080 6s
-# assert: httpOk http://localhost:8080/
-# assert: httpStatus GET http://localhost:8080/ 200
+# waitFor: portOpen 127.0.0.1 8100 6s
+# assert: httpOk http://localhost:8100/
+# assert: httpStatus GET http://localhost:8100/ 200
 # assert: commandSucceeds "echo ok"
 # assert: fileExists README.md
 # assert: fileExists README_DEMO.md
