@@ -57,10 +57,10 @@ DocuSOR turns your README into a test suite. It executes commands from fenced `b
 
 ## Installation & Running (Option A: Docker)
 
-Use this for CI and clean local runs. It uses the host Docker via the socket. Build the CLI locally first.
+Use this for CI and clean local runs. It uses the host Docker via the socket. The DocuSOR Image is used from GHCR
 
 ```bash
-docker run --rm   -v /var/run/docker.sock:/var/run/docker.sock   -v "$PWD":/workspace   docusor-cli:latest   /workspace/README.md
+docker run --rm -w /workspace -v "${PWD}:/workspace" -v //var/run/docker.sock:/var/run/docker.sock ghcr.io/ogaskinsjr/docusor-cli:latest README.md
 ```
 
 This will:
@@ -76,7 +76,7 @@ This will:
 
 ---
 
-## Installation & Running (Option B: npm CLI - Coming Soon)
+## Installation & Running (Option B: npm CLI - Coming Soon to NPM Library)
 
 Use this if you prefer a global/local CLI. Requires **Node ≥ 18**.
 
@@ -84,20 +84,20 @@ Global install:
 
 ```bash
 npm install -g docusor-cli
-docusor README.md
+docusor run README.md
 ```
 
 Local (dev-dependency):
 
 ```bash
 npm install --save-dev docusor-cli
-npx docusor README.md
+npx docusor run README.md
 ```
 
 You can point DocuSOR at any markdown file:
 
 ```bash
-docusor docs/GettingStarted.md
+docusor run docs/GettingStarted.md
 ```
 
 ---

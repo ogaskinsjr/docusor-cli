@@ -1,11 +1,17 @@
 {
-  "name": "docusor-mvp",
+  "name": "docusor",
   "version": "0.1.0",
   "type": "module",
   "bin": { "docusor": "./src/index.js" },
+  "files":[
+    "src/",
+    "README_DEMO.md",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
   "scripts": {
-    "start": "node ./src/index.js README.md",
-    "test-run": "node ./src/index.js README.md"
+    "start": "node ./src/index.js README_DEMO.md"
   },
   "dependencies": {
     "marked": "^12.0.2",

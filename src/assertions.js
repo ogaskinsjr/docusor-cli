@@ -4,7 +4,8 @@ import net from "node:net";
 import axios from "axios";
 import { sh, resolveServiceContainerId } from "./orchestrator.js";
 
-export async function runAssertion(spec, { projectName, cwd }) {
+export async function runAssertion(spec, { projectName, cwd, env = {} }) {
+  spec = interpolateEnv(spec, env);
   const parts = splitArgs(spec);
   const [type, ...rest] = parts;
 
@@ -32,7 +33,7 @@ export async function runAssertion(spec, { projectName, cwd }) {
         const svc = rest[0].split(":")[1];
         const path = rest.slice(1).join(" ");
         const id = await resolveServiceContainerId(svc, projectName, cwd);
-        const { code } = await sh(`docker exec ${id} test -f ${shellEscape(path)}`);
+        const { code } = await sh(`docker exec ${dockerEnvFlags(env)}${id} test -f ${shellEscape(path)}`);
         return code === 0 ? pass(`fileExists ${svc}:${path}`) : fail(`Missing file ${svc}:${path}`);
       } else {
         const p = rest.join(" ");
@@ -55,11 +56,11 @@ export async function runAssertion(spec, { projectName, cwd }) {
         const svc = rest[0].split(":")[1];
         const cmd = stripQuotes(rest.slice(1).join(" "));
         const id = await resolveServiceContainerId(svc, projectName, cwd);
-        const { code, stderr } = await sh(`docker exec ${id} bash -lc ${shellQuote(cmd)}`);
+        const { code, stderr } = await sh(`docker exec ${dockerEnvFlags(env)}${id} bash -lc ${shellQuote(cmd)}`);
         return code === 0 ? pass(`command OK in ${svc}`) : fail(`Command failed in ${svc}: ${stderr}`);
       } else {
         const cmd = stripQuotes(rest.join(" "));
-        const { code, stderr } = await sh(`bash -lc ${shellQuote(cmd)}`, { cwd });
+        const { code, stderr } = await sh(`bash -lc ${shellQuote(cmd)}`, { cwd, env });
         return code === 0 ? pass(`command OK`) : fail(`Command failed: ${stderr}`);
       }
     }
@@ -68,7 +69,8 @@ export async function runAssertion(spec, { projectName, cwd }) {
   }
 }
 
-export async function waitFor(spec, { projectName, cwd }) {
+export async function waitFor(spec, { projectName, cwd, env = {} }) {
+  spec = interpolateEnv(spec, env);
   // Supported:
   //   waitFor: httpOk <url> [timeoutSec]
   //   waitFor: portOpen [host] <port> [timeoutSec]
@@ -196,6 +198,16 @@ function splitArgs(s) {
   }
   if (cur) out.push(cur);
   return out;
+}
+export function interpolateEnv(str, env = {}) {
+  // Replace ${VAR} and $VAR with values from env, fallback to process.env
+  return str
+    .replace(/\$\{([^}]+)\}/g, (_, k) => env[k] ?? process.env[k] ?? `\${${k}}`)
+    .replace(/\$([A-Z_][A-Z0-9_]*)/g, (_, k) => env[k] ?? process.env[k] ?? `$${k}`);
+}
+function dockerEnvFlags(env = {}) {
+  if (!env || Object.keys(env).length === 0) return "";
+  return Object.entries(env).map(([k, v]) => `-e ${k}=${shellQuote(String(v))} `).join("");
 }
 function stripQuotes(s){ return s?.replace(/^['"]|['"]$/g, "") ?? s; }
 function shellQuote(s){ return `'${s.replace(/'/g, `'\\''`)}'`; }

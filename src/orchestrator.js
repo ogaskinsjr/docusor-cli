@@ -1,6 +1,24 @@
 // src/orchestrator.js
 import fs from "node:fs";
+import path from "node:path";
 import { spawn } from "node:child_process";
+
+export function loadEnvFile(dir = process.cwd(), filename = ".env") {
+  const envPath = path.join(dir, filename);
+  if (!fs.existsSync(envPath)) return {};
+  return Object.fromEntries(
+    fs.readFileSync(envPath, "utf8")
+      .split("\n")
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith("#") && l.includes("="))
+      .map(l => {
+        const idx = l.indexOf("=");
+        const key = l.slice(0, idx).trim();
+        const val = l.slice(idx + 1).trim().replace(/^(['"])(.*)\1$/, "$2");
+        return [key, val];
+      })
+  );
+}
 
 export function composeExists(cwd = process.cwd()) {
   return [
@@ -9,14 +27,16 @@ export function composeExists(cwd = process.cwd()) {
   ].some(f => fs.existsSync(`${cwd}/${f}`));
 }
 
-export async function composeUp(projectName = "vd_run", cwd = process.cwd()) {
+export async function composeUp(projectName = "vd_run", cwd = process.cwd(), envFile) {
   if (!composeExists(cwd)) return;
-  await sh(`docker compose -p ${projectName} up -d`, { cwd });
+  const envFlag = envFile ? `--env-file "${envFile}"` : "";
+  await sh(`docker compose -p ${projectName} ${envFlag} up -d`, { cwd });
 }
 
-export async function composeDown(projectName = "vd_run", cwd = process.cwd()) {
+export async function composeDown(projectName = "vd_run", cwd = process.cwd(), envFile) {
   if (!composeExists(cwd)) return;
-  await sh(`docker compose -p ${projectName} down -v`, { cwd });
+  const envFlag = envFile ? `--env-file "${envFile}"` : "";
+  await sh(`docker compose -p ${projectName} ${envFlag} down -v --rmi all`, { cwd });
 }
 
 export async function resolveServiceContainerId(service, projectName = "vd_run", cwd = process.cwd()) {
@@ -24,9 +44,14 @@ export async function resolveServiceContainerId(service, projectName = "vd_run",
   return stdout.trim();
 }
 
-export function sh(cmd, { cwd, timeoutMs } = {}) {
+export function sh(cmd, { cwd, timeoutMs, env } = {}) {
   return new Promise((res, rej) => {
-    const child = spawn(cmd, { cwd, shell: true, stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(cmd, {
+      cwd,
+      shell: true,
+      stdio: ["ignore", "pipe", "pipe"],
+      env: env ? { ...process.env, ...env } : process.env,
+    });
     let stdout = "", stderr = "";
     let killed = false;
 

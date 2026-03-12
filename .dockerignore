@@ -1,0 +1,15 @@
+.env
+.env.*
+node_modules
+.git
+.gitignore
+node_modules
+npm-debug.log
+yarn.lock
+pnpm-lock.yaml
+.git
+.gitignore
+dist
+build
+.env
+.DS_Store
