@@ -25,6 +25,7 @@ DocuSOR turns your README into a test suite. It executes commands from fenced `b
 - [Security](#security)  
 - [Contributing](#contributing)  
 - [Code of Conduct](#code-of-conduct)  
+- [Changelog](#changelog)  
 - [Roadmap](#roadmap)  
 - [Trademark & Logo Notice](#trademark--logo-notice)  
 - [License](#license)  
@@ -109,6 +110,8 @@ Place setup steps in a fenced `bash` block. Use `# assert:` and `# waitFor:` as 
 ```bash
 # Start your app (Compose will also be auto-started if compose.yml is present)
 docker compose up -d
+# If not using docker compose and using localhost, use spawn directive to spin up running instance
+# spawn: npm run start
 
 # Wait until service is reachable and healthy
 # waitFor: portOpen 127.0.0.1 8080 30
@@ -399,6 +402,12 @@ Planned / exploring:
 
 ---
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history, including all releases, new features, bug fixes, and deprecations.
+
+---
+
 ## Trademark & Logo Notice
 
 “DocuSOR”, the DocuSOR word mark, the dinosaur logo, and the “Docs Verified” badge are trademarks and/or copyrighted works of Omari Gaskins.
@@ -462,7 +471,7 @@ docker compose up -d
 Run:
 
 ```bash
-docusor docs/GettingStarted.md
+docusor docs/<your-doc-name>
 ```
 
 Happy verifying. ✅

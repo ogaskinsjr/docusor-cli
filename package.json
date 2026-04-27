@@ -1,14 +1,20 @@
 {
   "name": "docusor",
-  "version": "0.1.0",
+  "version": "0.1.4",
+  "description": "Turning docs into deterministic context for coding agents",
   "type": "module",
-  "bin": { "docusor": "./src/index.js" },
-  "files":[
+  "bin": {
+    "docusor": "./src/index.js"
+  },
+  "author":  "Omari Gaskins Jr <omari@docusor.ai> (https://www.npmjs.com/~ogaskinsjr)",
+  "license": "Apache-2.0",
+  "files": [
     "src/",
-    "README_DEMO.md",
+    "docusor.md",
     "README.md",
     "LICENSE",
-    "NOTICE"
+    "NOTICE",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "start": "node ./src/index.js README_DEMO.md"
