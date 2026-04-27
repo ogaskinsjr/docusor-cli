@@ -23,8 +23,25 @@ export async function runAssertion(spec, { projectName, cwd, env = {} }) {
       return ok ? pass(`httpStatus ${method} ${url} == ${status}`) : fail(`Expected ${status} from ${url}`);
     }
     case "portOpen": {
-      const port = Number(rest[0]); const host = rest[1] || "127.0.0.1";
-      const ok = await isPortOpen(host, port, 3000);
+      let host = "127.0.0.1";
+      let port;
+      let timeoutMs = 3000;
+      
+      if (rest.length >= 2 && /^\d+$/.test(rest[1])) {
+        // host, port, [timeout]
+        host = rest[0];
+        port = Number(rest[1]);
+        if (rest.length >= 3 && /^\d+$/.test(rest[2])) {
+          timeoutMs = Number(rest[2]);
+        }
+      } else {
+        // port, [timeout]
+        port = Number(rest[0]);
+        if (rest.length >= 2 && /^\d+$/.test(rest[1])) {
+          timeoutMs = Number(rest[1]);
+        }
+      }
+      const ok = await isPortOpen(host, port, timeoutMs);
       return ok ? pass(`portOpen ${host}:${port}`) : fail(`Port not open ${host}:${port}`);
     }
     case "fileExists": {

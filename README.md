@@ -25,6 +25,7 @@ DocuSOR turns your README into a test suite. It executes commands from fenced `b
 - [Security](#security)  
 - [Contributing](#contributing)  
 - [Code of Conduct](#code-of-conduct)  
+- [Changelog](#changelog)  
 - [Roadmap](#roadmap)  
 - [Trademark & Logo Notice](#trademark--logo-notice)  
 - [License](#license)  
@@ -399,6 +400,12 @@ Planned / exploring:
 
 ---
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history, including all releases, new features, bug fixes, and deprecations.
+
+---
+
 ## Trademark & Logo Notice
 
 “DocuSOR”, the DocuSOR word mark, the dinosaur logo, and the “Docs Verified” badge are trademarks and/or copyrighted works of Omari Gaskins.
@@ -462,7 +469,7 @@ docker compose up -d
 Run:
 
 ```bash
-docusor docs/GettingStarted.md
+docusor docs/<your-doc-name>
 ```
 
 Happy verifying. ✅

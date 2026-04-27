@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseDocsToSteps } from "./parser.js";
 import { runSteps } from "./runner.js";
 import { composeExists, composeUp, composeDown, loadEnvFile } from "./orchestrator.js";
@@ -32,12 +33,26 @@ function printFailureSummary(result) {
   console.error("");
 }
 
-function printHelp() {
-  console.log(`
+const HELP_GENERAL = `
 docusor — Documentation-as-tests runner
 
 USAGE
-  docusor [run] [options] [DOC_PATH]
+  docusor <command> [options]
+
+COMMANDS
+  run             Run a markdown doc as a test suite.
+  install         Copy docusor.md into the current directory.
+  help            Show this help message.
+
+Run 'docusor <command> --help' for details on a specific command.
+`;
+
+const HELP_RUN = `
+docusor run — Run a markdown doc as a test suite
+
+USAGE
+  docusor run [options] [DOC_PATH]
+  docusor [options] [DOC_PATH]        (run is the default command)
 
 ARGUMENTS
   DOC_PATH        Path to the markdown document to validate.
@@ -50,36 +65,68 @@ OPTIONS
 
   -help, --help       Show this help message and exit.
 
-COMMANDS
-  run             Explicitly invoke the run subcommand (optional).
-                  Equivalent to omitting it entirely.
-
 EXAMPLES
-  # Validate the default README.md in the current directory
-  docusor
-
-  # Validate a specific markdown file
-  docusor README.md
-
-  # Use the explicit run subcommand
-  docusor run README.md
-
-  # Validate a doc in a subdirectory
-  docusor docs/QUICKSTART.md
-
-  # Inject environment variables from a .env file
-  docusor --env-file .env README.md
-
-  # Combine env file with a custom doc path
-  docusor run --env-file config/.env docs/SETUP.md
+  docusor                                  Validate README.md
+  docusor run README.md                    Explicit subcommand
+  docusor docs/QUICKSTART.md              Custom doc path
+  docusor --env-file .env README.md       Inject env vars
+  docusor run --env-file cfg/.env SETUP.md
 
 OUTPUT
-  docusor writes two report files after every run:
-    docusor-report.json   Machine-readable step results
-    DOCUSOR_REPORT.md     Human-readable markdown report
+  docusor-report.json   Machine-readable step results
+  DOCUSOR_REPORT.md     Human-readable markdown report
 
-  Exit code 0 means all steps passed; exit code 1 means at least one failed.
-`);
+  Exit code 0 = all steps passed; exit code 1 = at least one failed.
+`;
+
+const HELP_INSTALL = `
+docusor install — Copy docusor.md into the current directory
+
+USAGE
+  docusor install
+
+DESCRIPTION
+  Copies the bundled docusor.md reference file into the current working
+  directory so you can use it as a starting point for your own doc tests.
+  If docusor.md already exists in the directory the command exits without
+  overwriting it.
+
+OPTIONS
+  -help, --help   Show this help message and exit.
+
+EXAMPLES
+  cd my-project
+  docusor install       # creates ./docusor.md
+`;
+
+function printHelp(command) {
+  if (command === "run") {
+    console.log(HELP_RUN);
+  } else if (command === "install") {
+    console.log(HELP_INSTALL);
+  } else {
+    console.log(HELP_GENERAL);
+  }
+}
+
+function runInstall() {
+  const pkgRoot = path.dirname(fileURLToPath(import.meta.url), "..");
+  const src = path.join(pkgRoot, "..", "docusor.md");
+  const dest = path.join(process.cwd(), "docusor.md");
+
+  if (!fs.existsSync(src)) {
+    console.error(`docusor.md not found in package (looked at: ${src})`);
+    process.exit(1);
+  }
+
+  if (fs.existsSync(dest)) {
+    console.log("docusor.md already exists in this directory — skipping.");
+    process.exit(0);
+  }
+
+  fs.copyFileSync(src, dest);
+  console.log(`Installed docusor.md → ${dest}`);
+  process.exit(0);
 }
 
 async function main() {
@@ -87,10 +134,30 @@ async function main() {
   //   docusor [run] [--env-file <path>] [DOC_PATH]
   const args = process.argv.slice(2);
 
-  // Handle -help / --help before any other processing
-  if (args.includes("-help") || args.includes("--help")) {
+  const subcommand = args[0];
+
+  // docusor help
+  if (subcommand === "help") {
     printHelp();
     process.exit(0);
+  }
+
+  // docusor run --help  /  docusor install --help  /  docusor --help
+  const hasHelp = args.includes("-help") || args.includes("--help");
+  if (hasHelp) {
+    if (subcommand === "run") {
+      printHelp("run");
+    } else if (subcommand === "install") {
+      printHelp("install");
+    } else {
+      printHelp();
+    }
+    process.exit(0);
+  }
+
+  // Handle install subcommand
+  if (subcommand === "install") {
+    runInstall();
   }
 
   // Extract --env-file <path>
