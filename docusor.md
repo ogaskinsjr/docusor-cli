@@ -4,13 +4,14 @@ DocuSOR turns Markdown files into executable test suites. It runs shell commands
 
 ## How It Works
 
-DocuSOR scans every fenced ` ```bash ``` ` block in a Markdown file (default: `README.md`). Each line is one of three things:
+DocuSOR scans every fenced ` ```bash ``` ` block in a Markdown file (default: `README.md`). Each line is one of four things:
 
-1. **Shell command** — any non-comment line; executed directly
+1. **Shell command** — any non-comment line; executed directly (blocking)
 2. **`# assert: <spec>`** — evaluated once; fails immediately if false
 3. **`# waitFor: <spec>`** — polls until true or timeout expires (default: 60s)
+4. **`# spawn: <cmd>`** — starts a process in the background and immediately continues
 
-Lines starting with `#` that are not `assert:` or `waitFor:` are ignored as normal comments.
+Lines starting with `#` that are not `assert:`, `waitFor:`, or `spawn:` are ignored as normal comments.
 
 ---
 
@@ -54,6 +55,26 @@ Runs the command via `bash -lc`. Passes if exit code is 0. Works on host or insi
 
 ---
 
+### Background Processes — `# spawn: <cmd>`
+
+Starts a long-running process in the background without blocking. Use this for dev servers, watchers, or any process that does not exit on its own.
+
+```bash
+# spawn: npm run dev
+# spawn: npm start
+# spawn: node server.js
+```
+
+Always follow a `spawn` with a `waitFor` to confirm the process is ready before asserting:
+
+```bash
+# spawn: npm start
+# waitFor: httpOk http://localhost:8000 30
+# assert: httpOk http://localhost:8000
+```
+
+---
+
 ### Waits — `# waitFor: <spec>`
 
 Poll until condition is met or timeout expires. Default timeout: **60 seconds**.
@@ -85,6 +106,7 @@ Poll until condition is met or timeout expires. Default timeout: **60 seconds**.
 | `waitFor httpOk` | `waitFor: httpOk <url> [timeoutSec]` |
 | `waitFor portOpen` | `waitFor: portOpen [host] <port> [timeoutSec]` |
 | `waitFor logContains` | `waitFor: logContains container:<svc> "text" [timeoutSec]` |
+| `spawn` | `spawn: <cmd>` |
 
 ---
 
@@ -101,8 +123,9 @@ Poll until condition is met or timeout expires. Default timeout: **60 seconds**.
 
 ## Recommended Pattern
 
-Always place `waitFor` before `assert` when testing services that need startup time:
+Always place `waitFor` before `assert` when testing services that need startup time.
 
+**With Docker Compose (recommended):**
 ```bash
 docker compose up -d
 
@@ -117,6 +140,13 @@ docker compose up -d
 # assert: logContains container:api "Server started"
 # assert: commandSucceeds container:api "pg_isready -U postgres"
 # assert: commandSucceeds "curl -sf http://localhost:8080/health"
+```
+
+**With a local dev server (using spawn):**
+```bash
+# spawn: npm run start
+# waitFor: httpOk http://localhost:8000 30
+# assert: httpOk http://localhost:8000
 ```
 
 ---
