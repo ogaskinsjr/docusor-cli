@@ -43,6 +43,7 @@ DocuSOR turns your README into a test suite. It executes commands from fenced `b
   - `fileExists [container:<svc>] <path>`
   - `logContains container:<svc> "text"`
   - `commandSucceeds [container:<svc>] "<cmd>"`
+  - `spawn <assertion i.e. npm run start>`
 - Built-in waits:
   - `httpOk <url> [timeoutSec]`
   - `portOpen [host] <port> [timeoutSec]`
