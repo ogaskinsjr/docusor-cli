@@ -1,6 +1,6 @@
 {
   "name": "docusor",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Turning docs into deterministic context for coding agents",
   "type": "module",
   "bin": {
@@ -13,9 +13,14 @@
     "docusor.md",
     "README.md",
     "LICENSE",
-    "NOTICE"
+    "NOTICE",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "start": "node ./src/index.js README_DEMO.md"
+  },
+  "dependencies": {
+    "marked": "^12.0.2",
+    "axios": "^1.7.2"
   }
 }
