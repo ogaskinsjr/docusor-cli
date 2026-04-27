@@ -110,6 +110,8 @@ Place setup steps in a fenced `bash` block. Use `# assert:` and `# waitFor:` as 
 ```bash
 # Start your app (Compose will also be auto-started if compose.yml is present)
 docker compose up -d
+# If not using docker compose and using localhost, use spawn directive to spin up running instance
+# spawn: npm run start
 
 # Wait until service is reachable and healthy
 # waitFor: portOpen 127.0.0.1 8080 30

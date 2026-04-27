@@ -44,6 +44,18 @@ export async function resolveServiceContainerId(service, projectName = "vd_run",
   return stdout.trim();
 }
 
+export function spawnBackground(cmd, { cwd, env } = {}) {
+  const child = spawn(cmd, {
+    cwd,
+    shell: true,
+    stdio: "ignore",
+    detached: true,
+    env: env ? { ...process.env, ...env } : process.env,
+  });
+  child.unref();
+  return child;
+}
+
 export function sh(cmd, { cwd, timeoutMs, env } = {}) {
   return new Promise((res, rej) => {
     const child = spawn(cmd, {

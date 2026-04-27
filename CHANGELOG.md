@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-04-27
+
+## Added
+- Added #spawn , instead of doing assert or waitFor, if you have a running process, i.e. npm run start or similar process, spawn doesn't wait for exit code, it will run the process
+-- specifically for localhost runs, for docker compose, this is not necessary
+
 ## [0.1.2] - 2026-04-27
 
 ### Changed

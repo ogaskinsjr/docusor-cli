@@ -1,6 +1,6 @@
 {
   "name": "docusor",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Turning docs into deterministic context for coding agents",
   "type": "module",
   "bin": {

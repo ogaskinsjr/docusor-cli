@@ -1,5 +1,5 @@
 // src/runner.js
-import { sh } from "./orchestrator.js";
+import { sh, spawnBackground } from "./orchestrator.js";
 import { runAssertion, waitFor, interpolateEnv } from "./assertions.js";
 import { StepKind } from "./types.js";
 
@@ -19,6 +19,11 @@ export async function runSteps(steps, { projectName, cwd, env = {} }) {
         const cmd = interpolateEnv(step.cmd, env);
         const r = await sh(cmd, { cwd, timeoutMs: (step.timeoutSec || 300) * 1000, env });
         ok = r.code === 0; stdout = r.stdout; stderr = r.stderr;
+      } else if (step.kind === StepKind.SPAWN) {
+        console.log("Received spawn command, starting in background")
+        const cmd = interpolateEnv(step.spec, env);
+        spawnBackground(cmd, { cwd, env });
+        ok = true; stdout = `Spawned: ${cmd}`;
       } else if (step.kind === StepKind.ASSERT) {
         console.log("Received assert command, executing")
         const r = await runAssertion(step.spec, { projectName, cwd, env });

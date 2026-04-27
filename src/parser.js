@@ -24,6 +24,9 @@ export function parseDocsToSteps(docPath = "README.md") {
           const w = line.match(/^#\s*waitFor:\s*(.+)$/i);
           if (w) { steps.push({ kind: StepKind.WAIT_FOR, spec: w[1] }); continue; }
 
+          const sp = line.match(/^#\s*spawn:\s*(.+)$/i);
+          if (sp) { steps.push({ kind: StepKind.SPAWN, spec: sp[1] }); continue; }
+
           continue; // ignore other comments
         }
 
