@@ -2,7 +2,7 @@
 
 [![Docs Verified](https://img.shields.io/badge/docs-verified-brightgreen)](./DOCUSOR_REPORT.md) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](#license)
 
-DocuSOR turns your README into a test suite. It executes commands from fenced `bash` blocks in your docs, optionally brings up Docker Compose, evaluates assertions (`httpOk`, `httpStatus`, `portOpen`, `fileExists`, `logContains`, `commandSucceeds`) and waits (`waitFor`), and emits Markdown/JSON reports. Use it locally or in CI to keep onboarding instructions honest.
+DocuSOR turns your README into a test suite. It executes commands from fenced `bash` blocks in your docs, optionally brings up Docker Compose, evaluates assertions (`httpOk`, `httpStatus`, `portOpen`, `fileExists`, `logContains`, `commandSucceeds`), ('spawn') and waits (`waitFor`), and emits Markdown/JSON reports. Use it locally or in CI to keep onboarding instructions honest.
 
 > **Open-core model:**  
 > This repo is the **open-source DocuSOR CLI** (Apache-2.0).  
