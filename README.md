@@ -1,8 +1,8 @@
-# DocuSOR — Executable Documentation Verifier (All-in-One README)
+# DocuSOR — Reducing Token Cost by 10x via Context Verification for AI Agents
 
-[![Docs Verified](https://img.shields.io/badge/docs-verified-brightgreen)](./DOCUSOR_REPORT.md) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](#license)
+[![Context Verified](https://img.shields.io/badge/docs-verified-brightgreen)](./DOCUSOR_REPORT.md) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](#license)
 
-DocuSOR turns your README into a test suite. It executes commands from fenced `bash` blocks in your docs, optionally brings up Docker Compose, evaluates assertions (`httpOk`, `httpStatus`, `portOpen`, `fileExists`, `logContains`, `commandSucceeds`), ('spawn') and waits (`waitFor`), and emits Markdown/JSON reports. Use it locally or in CI to keep onboarding instructions honest.
+DocuSOR turns your context (Agent.md, ReadMe.md, Runbooks etc) into a test suite. It executes commands from fenced `bash` blocks in your docs, optionally brings up Docker Compose, evaluates assertions (`httpOk`, `httpStatus`, `portOpen`, `fileExists`, `logContains`, `commandSucceeds`, `spawn`) and waits (`waitFor`), and emits Markdown/JSON reports. Use it locally or in CI to keep continuously provide up to date context for your agents.
 
 > **Open-core model:**  
 > This repo is the **open-source DocuSOR CLI** (Apache-2.0).  
@@ -43,7 +43,7 @@ DocuSOR turns your README into a test suite. It executes commands from fenced `b
   - `fileExists [container:<svc>] <path>`
   - `logContains container:<svc> "text"`
   - `commandSucceeds [container:<svc>] "<cmd>"`
-  - `spawn <assertion i.e. npm run start>`
+  - `spawn <cmd i.e. npm run start>`
 - Built-in waits:
   - `httpOk <url> [timeoutSec]`
   - `portOpen [host] <port> [timeoutSec]`
@@ -78,14 +78,16 @@ This will:
 
 ---
 
-## Installation & Running (Option B: npm CLI - Coming Soon to NPM Library)
+## Installation & Running (Option B: npm CLI )
 
 Use this if you prefer a global/local CLI. Requires **Node ≥ 18**.
 
 Global install:
 
 ```bash
-npm install -g docusor-cli
+npm install -g docusor
+# use the docusor install command to get the docusor.md file so your agent can make your context docusor compatible
+docusor install
 docusor run README.md
 ```
 
@@ -93,6 +95,8 @@ Local (dev-dependency):
 
 ```bash
 npm install --save-dev docusor-cli
+# use the docusor install command to get the docusor.md file so your agent can make your context docusor compatible
+npx docusor install
 npx docusor run README.md
 ```
 
@@ -222,6 +226,14 @@ Wait directives **poll until success or timeout**.
 # waitFor: logContains container:web "Started server on port 8080" 60
 ```
 
+#### `spawn: [cmd ex. npm run start]`
+
+For local runs if not using docker image, spawn will spin up a local instance of app
+
+```bash
+# spawn: npm run start
+```
+
 ---
 
 ## Outputs, Exit Codes, and Reports
@@ -245,7 +257,7 @@ DocuSOR emits two outputs by default:
 ### Sample Markdown Report
 
 ```md
-# Docs Verified: ✅
+# Context Verified: ✅
 
 | # | Kind     | Step                                             | Result |
 |---:|:--------|:-------------------------------------------------|:------:|
@@ -325,8 +337,11 @@ docker run --rm   -v /var/run/docker.sock:/var/run/docker.sock   -v "$PWD":/work
 
 ## FAQ
 
+**Why can't agents validate context themselves?**
+They can, and that's the problem. Your wasting those oh so precious tokens on validating context that should've been correct BEFORE the agent used it. When you provide valid context of your application, reduce the tax of discovery on every task. Even if memory is cached, thats wasted context window on an entire codebase when verified context is enough.
+
 **Why not just rely on tests?**  
-Tests validate **code**; DocuSOR validates **docs + environment** end-to-end (prereqs, commands, runtime behavior). They are complementary. Tests can pass while onboarding docs are broken.
+Tests validate **code**; DocuSOR validates **context + environment** end-to-end (prereqs, commands, runtime behavior). They are complementary. Tests can pass while context the agent relies on is incorrect, even with access to the codebase. This is a fundamental waste of tokens.
 
 **How do I integrate with CI/CD?**
 The docusor-report allows easy CI/CD integration, but a Cloud service to handle this for your enterprises is coming soon! :D
